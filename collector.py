@@ -4,8 +4,8 @@ from influxdb_client.client.write_api import SYNCHRONOUS
 import paho.mqtt.client as mqtt
 
 # 1. Konfiguracija za InfluxDB
-INFLUX_URL = "http://localhost:8086"
-INFLUX_TOKEN = "8xzHFCR7miMmGufuinkShAOc1-NNSCLGz7r5dokEp_a0ddZ20b1pf7JD3v54k0v-wiCz7IrE9hxUUMGpnyM2Mw=="
+INFLUX_URL = "http://raspberrypi.local:8086/"
+INFLUX_TOKEN = "UFbOji8eqqSHK01grfrHBGAqX1TC4Br8d6-cszjKQ4yRNZXPHbQ7PgqDPyxuHUDcecsKvFNOyYV8RlgIGOE-0w=="
 INFLUX_ORG = "Faculty of Organizational Sciences"
 INFLUX_BUCKET = "projekat"
 
@@ -48,7 +48,7 @@ mqtt_client = mqtt.Client()
 mqtt_client.on_message = on_message
 
 # Povezivanje na MQTT Broker (npr. Mosquitto koji radi na RPi ili lokalno)
-mqtt_client.connect("localhost", 1883, 60)
+mqtt_client.connect("raspberrypi.local", 1883, 60)
 
 # Pretplata na temu gde senzori šalju podatke
 mqtt_client.subscribe("pcelinjak/senzori")
