@@ -190,7 +190,7 @@
                     document.getElementById('naslovAlerti').innerText = `Status alerta (Košnica #${id})`;
                     const kontejner = document.getElementById('sadrzajAlerti');
 
-                    if (data.status === "OFLAJN") {
+                    if (data.status === "OFFLINE") {
                         kontejner.innerHTML = `<div class="alert alert-secondary">${data.poruka}</div>`;
                         return;
                     }
