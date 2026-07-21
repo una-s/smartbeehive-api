@@ -182,8 +182,8 @@ def proveru_alerta(kosnica_id):
         if temp is None or vlaznost is None:
             return jsonify({
                 "kosnica_id": kosnica_id,
-                "status": "OFLAJN",
-                "poruka": "Senzori ne šalju podatke u poslednjih 15 minuta!"
+                "status": "OFFLINE",
+                "poruka": "Senzori ne salju podatke u poslednjih 15 minuta!"
             }), 200
 
         alerti = []
@@ -191,7 +191,7 @@ def proveru_alerta(kosnica_id):
         # Provera temperature
         if temp > 38.0:
             alerti.append({
-                "nivo": "KRITIČNO",
+                "nivo": "KRITICNO",
                 "tip": "VISOKA_TEMPERATURA",
                 "poruka": f"Previsoka temperatura ({temp}°C)! Rizik od toplotnog stresa."
             })
@@ -207,7 +207,7 @@ def proveru_alerta(kosnica_id):
             alerti.append({
                 "nivo": "UPOZORENJE",
                 "tip": "VISOKA_VLAZNOST",
-                "poruka": f"Povecana vlaznost ({vlaznost}%). Rizik od pojave buđi."
+                "poruka": f"Povecana vlaznost ({vlaznost}%). Rizik od pojave budji."
             })
         elif vlaznost < 40.0:
             alerti.append({
@@ -227,6 +227,19 @@ def proveru_alerta(kosnica_id):
     except Exception as e:
         return jsonify({"greska": str(e)}), 500    
     
+# DELETE /kosnice/<id> — Brisanje kosnice
+@app.route("/kosnice/<int:kosnica_id>", methods=["DELETE"])
+def obrisi_kosnicu(kosnica_id):
+    conn = get_db()
+    cur = conn.execute("DELETE FROM kosnica WHERE id = ?", (kosnica_id,))
+    conn.commit()
+    obrisano = cur.rowcount
+    conn.close()
+    
+    if obrisano == 0:
+        return jsonify({"greska": "Kosnica ne postoji"}), 404
+        
+    return jsonify({"poruka": f"Kosnica #{kosnica_id} uspesno obrisana"}), 200    
 
 if __name__ == "__main__":
     init_db()
