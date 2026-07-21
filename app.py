@@ -1,4 +1,5 @@
 import sqlite3
+from flask import Flask, jsonify, render_template, request
 from flask import Flask, request, jsonify
 from datetime import datetime, timedelta
 from influxdb_client import InfluxDBClient
@@ -38,6 +39,9 @@ def init_db():
     conn.commit()
     conn.close()
 
+@app.route("/")
+def index():
+    return render_template("index.html")
 
 #GET /kosnice — lista svih kosnica
 @app.route("/kosnice", methods=["GET"])

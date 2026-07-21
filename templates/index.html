@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Beehive Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container py-4">
+        <h1 class="mb-4 text-center">🐝 Smart Beehive Control Panel</h1>
+
+        <div class="row g-4">
+            <!-- DODAVANJE KOŠNICE -->
+            <div class="col-md-5">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-0">Dodaj novu košnicu</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="formDodaj">
+                            <div class="mb-3">
+                                <label class="form-label">Naziv košnice*</label>
+                                <input type="text" id="naziv" class="form-control" placeholder="npr. Košnica 1" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Lokacija</label>
+                                <input type="text" id="lokacija" class="form-control" placeholder="npr. Pčelinjak A">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Datum postavljanja</label>
+                                <input type="date" id="datum" class="form-control">
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Sačuvaj košnicu</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LISTA KOŠNICA -->
+            <div class="col-md-7">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Pregled košnica</h5>
+                        <button onclick="ucitajKosnice()" class="btn btn-sm btn-outline-light">Osveži</button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Naziv</th>
+                                        <th>Lokacija</th>
+                                        <th>Akcije</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabelaKosnica">
+                                    <!-- Popunjava JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PRIKAZ STATISTIKE I ALERATA -->
+        <div class="row g-4 mt-2" id="detaljiSekcija" style="display: none;">
+            <div class="col-md-6">
+                <div class="card shadow-sm border-info">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="card-title mb-0" id="naslovStatistika">Statistika klime</h5>
+                    </div>
+                    <div class="card-body" id="sadrzajStatistika">
+                        <!-- Popunjava JS -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card shadow-sm border-warning">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="card-title mb-0" id="naslovAlerti">Status upozorenja</h5>
+                    </div>
+                    <div class="card-body" id="sadrzajAlerti">
+                        <!-- Popunjava JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Učitaj košnice čim se stranica otvori
+        document.addEventListener("DOMContentLoaded", ucitajKosnice);
+
+        function ucitajKosnice() {
+            fetch('/kosnice')
+                .then(res => res.json())
+                .then(podaci => {
+                    const tabela = document.getElementById('tabelaKosnica');
+                    tabela.innerHTML = '';
+                    podaci.forEach(k => {
+                        tabela.innerHTML += `
+                            <tr>
+                                <td><b>#${k.id}</b></td>
+                                <td>${k.naziv}</td>
+                                <td>${k.lokacija || '-'}</td>
+                                <td>
+                                    <button onclick="prikaziDetalje(${k.id})" class="btn btn-sm btn-outline-primary">Analiza</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                });
+        }
+
+        // Forma za dodavanje
+        document.getElementById('formDodaj').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const podaci = {
+                naziv: document.getElementById('naziv').value,
+                lokacija: document.getElementById('lokacija').value,
+                datum_postavljanja: document.getElementById('datum').value
+            };
+
+            fetch('/kosnice', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(podaci)
+            })
+            .then(res => res.json())
+            .then(() => {
+                this.reset();
+                ucitajKosnice();
+            });
+        });
+
+        // Prikaz klime i alerta za izabranu košnicu
+        function prikaziDetalje(id) {
+            document.getElementById('detaljiSekcija').style.display = 'flex';
+
+            // 1. Učitaj statistiku klime
+            fetch(`/api/kosnica/${id}/statistika-klime`)
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('naslovStatistika').innerText = `Statistika klime (Košnica #${id})`;
+                    
+                    if (data.poruka) {
+                        document.getElementById('sadrzajStatistika').innerHTML = `<p class="text-muted">${data.poruka}</p>`;
+                        return;
+                    }
+
+                    document.getElementById('sadrzajStatistika').innerHTML = `
+                        <p><b>Prosečna temperatura (24h):</b> ${data.prosek_temperatura_24h}°C (${data.promena_temp_u_odnosu_na_juce})</p>
+                        <p><b>Prosečna vlažnost (24h):</b> ${data.prosek_vlaznost_24h}% (${data.promena_vlaznosti_u_odnosu_na_juce})</p>
+                        <div class="alert alert-secondary mb-0"><b>Ocena:</b> ${data.ocena_mikroklime}</div>
+                    `;
+                });
+
+            // 2. Učitaj alerte
+            fetch(`/api/kosnica/${id}/alerti`)
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('naslovAlerti').innerText = `Status alerta (Košnica #${id})`;
+                    const kontejner = document.getElementById('sadrzajAlerti');
+
+                    if (data.status === "OFLAJN") {
+                        kontejner.innerHTML = `<div class="alert alert-secondary">${data.poruka}</div>`;
+                        return;
+                    }
+
+                    if (!data.ima_alerta) {
+                        kontejner.innerHTML = `<div class="alert alert-success">Sve je u redu! Senzori ne bilježe odstupanja.</div>`;
+                    } else {
+                        let html = '';
+                        data.alerti.forEach(a => {
+                            const klasa = a.nivo === 'KRITIČNO' ? 'alert-danger' : 'alert-warning';
+                            html += `<div class="alert ${klasa} mb-2"><b>[${a.nivo}]</b> ${a.poruka}</div>`;
+                        });
+                        kontejner.innerHTML = html;
+                    }
+                });
+        }
+    </script>
+</body>
+</html>
