@@ -151,6 +151,77 @@ def statistika_klime(kosnica_id):
     except Exception as e:
         return jsonify({"greska": str(e)}), 500
     
+@app.route("/api/kosnica/<int:kosnica_id>/alerti", methods=["GET"])
+def proveru_alerta(kosnica_id):
+    try:
+        # Uzimamo samo najnovije merenje (poslednjih 15 minuta)
+        query = f"""
+        from(bucket: "{INFLUX_BUCKET}")
+            |> range(start: -15m)
+            |> filter(fn: (r) => r["_measurement"] == "merenja_senzora")
+            |> filter(fn: (r) => r["kosnica_id"] == "{kosnica_id}")
+            |> filter(fn: (r) => r["_field"] == "temperatura" or r["_field"] == "vlaznost")
+            |> last()
+        """
+        tables = influx_client.query_api().query(query)
+
+        temp = None
+        vlaznost = None
+
+        for table in tables:
+            for record in table.records:
+                if record.get_field() == "temperatura":
+                    temp = record.get_value()
+                elif record.get_field() == "vlaznost":
+                    vlaznost = record.get_value()
+
+        if temp is None or vlaznost is None:
+            return jsonify({
+                "kosnica_id": kosnica_id,
+                "status": "OFLAJN",
+                "poruka": "Senzori ne šalju podatke u poslednjih 15 minuta!"
+            }), 200
+
+        alerti = []
+
+        # Provera temperature
+        if temp > 38.0:
+            alerti.append({
+                "nivo": "KRITIČNO",
+                "tip": "VISOKA_TEMPERATURA",
+                "poruka": f"Previsoka temperatura ({temp}°C)! Rizik od toplotnog stresa."
+            })
+        elif temp < 31.0:
+            alerti.append({
+                "nivo": "UPOZORENJE",
+                "tip": "NISKA_TEMPERATURA",
+                "poruka": f"Niska temperatura ({temp}°C) u leglu."
+            })
+
+        # Provera vlaznosti
+        if vlaznost > 80.0:
+            alerti.append({
+                "nivo": "UPOZORENJE",
+                "tip": "VISOKA_VLAZNOST",
+                "poruka": f"Povecana vlaznost ({vlaznost}%). Rizik od pojave buđi."
+            })
+        elif vlaznost < 40.0:
+            alerti.append({
+                "nivo": "INFO",
+                "tip": "NISKA_VLAZNOST",
+                "poruka": f"Vlaznost je niska ({vlaznost}%)."
+            })
+
+        return jsonify({
+            "kosnica_id": kosnica_id,
+            "trenutno": {"temperatura": temp, "vlaznost": vlaznost},
+            "ima_alerta": len(alerti) > 0,
+            "broj_alerta": len(alerti),
+            "alerti": alerti
+        }), 200
+
+    except Exception as e:
+        return jsonify({"greska": str(e)}), 500    
     
 
 if __name__ == "__main__":
