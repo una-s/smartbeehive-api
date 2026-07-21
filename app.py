@@ -2,6 +2,7 @@ import sqlite3
 from flask import Flask, request, jsonify
 from datetime import datetime, timedelta
 from influxdb_client import InfluxDBClient
+import sqlite3
 
 
 INFLUX_URL = "http://raspberrypi.local:8086/"
@@ -16,7 +17,7 @@ influx_client = InfluxDBClient(
 
 app = Flask(__name__)
 DB = "kosnice.db"
-
+app.json.ensure_ascii = False
 
 def get_db():
     conn = sqlite3.connect(DB)
