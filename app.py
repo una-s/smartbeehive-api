@@ -4,6 +4,18 @@ from datetime import datetime, timedelta
 from influxdb_client import InfluxDBClient
 
 app = Flask(__name__)
+
+INFLUX_URL = "http://raspberrypi.local:8086/"
+INFLUX_TOKEN = "UFbOji8eqqSHK01grfrHBGAqX1TC4Br8d6-cszjKQ4yRNZXPHbQ7PgqDPyxuHUDcecsKvFNOyYV8RlgIGOE-0w=="
+INFLUX_ORG = "Faculty of Organizational Sciences"
+INFLUX_BUCKET = "projekat"
+
+# Inicijalizacija klijenta za čitanje iz baze
+influx_client = InfluxDBClient(
+    url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG
+)
+
+app = Flask(__name__)
 DB = "kosnice.db"
 
 
