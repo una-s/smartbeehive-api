@@ -3,7 +3,6 @@ from flask import Flask, request, jsonify
 from datetime import datetime, timedelta
 from influxdb_client import InfluxDBClient
 
-app = Flask(__name__)
 
 INFLUX_URL = "http://raspberrypi.local:8086/"
 INFLUX_TOKEN = "UFbOji8eqqSHK01grfrHBGAqX1TC4Br8d6-cszjKQ4yRNZXPHbQ7PgqDPyxuHUDcecsKvFNOyYV8RlgIGOE-0w=="
@@ -106,7 +105,7 @@ def statistika_klime(kosnica_id):
             return (
                 jsonify(
                     {
-                        "poruka": "Nedovoljno istorijskih podataka za preračun trenda (potrebno je bar 24h-48h rada).",
+                        "poruka": "Nedovoljno istorijskih podataka za preracun trenda (potrebno je bar 24h-48h rada).",
                         "trenutni_podaci": {
                             "temperatura": tempe[-1] if tempe else 0,
                             "vlaznost": vlaznosti[-1] if vlaznosti else 0,
@@ -128,11 +127,11 @@ def statistika_klime(kosnica_id):
         # Idealna temp kosnice je između 34.0°C i 35.5°C
         odstupanje = abs(prosek_temp_danas - 34.8)
         if odstupanje <= 1.5:
-            ocena_klime = "Odlična (Optimalni uslovi za leglo)"
+            ocena_klime = "Odlicna (Optimalni uslovi za leglo)"
         elif odstupanje <= 3.5:
-            ocena_klime = "Umerena (Pčele aktivno regulišu temperaturu)"
+            ocena_klime = "Umerena (Pcele aktivno regulisu temperaturu)"
         else:
-            ocena_klime = "Nestabilna (Niski ili previsoki uslovi u okruženju)"
+            ocena_klime = "Nestabilna (Niski ili previsoki uslovi u okruzenju)"
 
         return (
             jsonify(
