@@ -128,7 +128,7 @@ def statistika_klime(kosnica_id):
         prosek_vlaznost_juce = round(vlaznosti[-2], 2)
         trend_vlaznost = round(prosek_vlaznost_danas - prosek_vlaznost_juce, 2)
 
-        # Logika preračuna: Procena mikroklimatske stabilnosti
+        # Logika preracuna: Procena mikroklimatske stabilnosti
         # Idealna temp kosnice je između 34.0°C i 35.5°C
         odstupanje = abs(prosek_temp_danas - 34.8)
         if odstupanje <= 1.5:

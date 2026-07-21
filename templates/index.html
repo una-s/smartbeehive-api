@@ -92,7 +92,7 @@
     </div>
 
     <script>
-        // Učitaj košnice čim se stranica otvori
+        // Ucitaj kosnice cim se stranica otvori
         document.addEventListener("DOMContentLoaded", ucitajKosnice);
 
         function ucitajKosnice() {
@@ -137,7 +137,7 @@
             });
         });
 
-        // Prikaz klime i alerta za izabranu košnicu
+        // Prikaz klime i alerta za izabranu kosnicu
         function prikaziDetalje(id) {
             document.getElementById('detaljiSekcija').style.display = 'flex';
 
@@ -159,7 +159,7 @@
                     `;
                 });
 
-            // 2. Učitaj alerte
+            // 2. Ucitaj alerte
             fetch(`/api/kosnica/${id}/alerti`)
                 .then(res => res.json())
                 .then(data => {
@@ -172,7 +172,7 @@
                     }
 
                     if (!data.ima_alerta) {
-                        kontejner.innerHTML = `<div class="alert alert-success">Sve je u redu! Senzori ne bilježe odstupanja.</div>`;
+                        kontejner.innerHTML = `<div class="alert alert-success">Sve je u redu! Senzori ne beleze odstupanja.</div>`;
                     } else {
                         let html = '';
                         data.alerti.forEach(a => {
