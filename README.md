@@ -57,4 +57,4 @@ Aplikacija je dostupna na `http://127.0.0.1:5000`.
 
 ## Autor
 
-Una — projektni zadatak iz predmeta Internet inteligentnih uredjaja, Fakultet organizacionih nauka, 2026.
+Una Stanković— projektni zadatak iz predmeta Internet inteligentnih uredjaja, Fakultet organizacionih nauka, 2026.
