@@ -1,6 +1,6 @@
 ## Tehnologije
 
-- **Hardver:** Arduino Uno, Raspberry Pi 4, senzori DHT22 i DS18B20
+- **Hardver:** Arduino Uno, Raspberry Pi 3B, senzori DHT11
 - **Backend:** Python, Flask, SQLite, InfluxDB 2.x
 - **Komunikacija:** MQTT (Mosquitto), serial (USB, 9600 bps)
 - **Frontend:** HTML, JavaScript (fetch API), Bootstrap 5
